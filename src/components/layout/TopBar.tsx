@@ -1,12 +1,15 @@
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import { ChevronDownIcon, MenuIcon, SearchIcon } from "../icons";
 
-export function TopBar() {
+type Props = { onMenuClick: () => void };
+
+export function TopBar({ onMenuClick }: Props) {
   return (
     <header className="flex h-11 items-center gap-2 border-b border-line bg-surface px-2 sm:gap-3 sm:px-3">
       {/* Menu button: only below lg, opens the sidebar drawer (wired up in Step R3) */}
       <button
         type="button"
+        onClick={onMenuClick}
         aria-controls="sidebar"
         aria-label="Open sidebar"
         className="grid size-8 place-items-center rounded-md text-fg-muted hover:bg-surface-2 hover:text-fg lg:hidden"
