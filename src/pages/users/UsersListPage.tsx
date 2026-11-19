@@ -1,30 +1,12 @@
 import { Link, useSearchParams } from "react-router";
-import { listUsers, type UserStatus } from "../../backend/admin";
+import { listUsers } from "../../backend/admin";
 import { UserPlusIcon } from "../../components/icons";
 import { Pagination } from "../../components/Pagination";
 import { useAsync } from "../../hooks/useAsync";
 import { errorMessage, formatDate, formatDateTime } from "../../lib/format";
+import { roleLabel, UserStatusBadge } from "./userDisplay";
 
 const PAGE_SIZE = 25;
-
-const STATUS_STYLE: Record<UserStatus, string> = {
-  active: "bg-ok/12 text-ok",
-  pending: "bg-warn/12 text-warn",
-  suspended: "bg-err/12 text-err",
-};
-
-function StatusBadge({ status }: { status: UserStatus }) {
-  return (
-    <span
-      className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${STATUS_STYLE[status] ?? "bg-surface-3 text-fg-subtle"}`}
-    >
-      {status}
-    </span>
-  );
-}
-
-/** "administrator" → "Administrator" */
-const roleLabel = (role: string): string => role.charAt(0).toUpperCase() + role.slice(1);
 
 /** All users, newest first, 25 per page. The page lives in the URL (?page=2). */
 export function UsersListPage() {
@@ -85,15 +67,22 @@ export function UsersListPage() {
                 </thead>
                 <tbody className="divide-y divide-line">
                   {users.map((u) => (
-                    <tr key={u.id}>
+                    // relative + the link's after:inset-0 makes the whole row clickable, while the
+                    // name stays a real link (keyboard, middle-click, "open in new tab").
+                    <tr key={u.id} className="relative hover:bg-surface-2">
                       <td className="py-2 pr-3">
-                        <div className="font-medium">{u.display_name}</div>
+                        <Link
+                          to={`/users/${u.id}`}
+                          className="font-medium after:absolute after:inset-0 after:content-[''] hover:underline"
+                        >
+                          {u.display_name}
+                        </Link>
                         {u.job_title && <div className="text-xs text-fg-subtle">{u.job_title}</div>}
                       </td>
                       <td className="py-2 pr-3 text-fg-muted">{u.email}</td>
                       <td className="py-2 pr-3 text-fg-muted">{roleLabel(u.system_role)}</td>
                       <td className="py-2 pr-3">
-                        <StatusBadge status={u.status} />
+                        <UserStatusBadge status={u.status} />
                       </td>
                       <td className="py-2 text-fg-muted">
                         <time dateTime={u.created_at} title={formatDateTime(u.created_at)}>
@@ -108,14 +97,19 @@ export function UsersListPage() {
               {/* Cards below md */}
               <ul className="space-y-2 md:hidden">
                 {users.map((u) => (
-                  <li key={u.id} className="rounded-lg border border-line px-3 py-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate font-medium">{u.display_name}</span>
-                      <StatusBadge status={u.status} />
-                    </div>
-                    <p className="truncate text-xs text-fg-subtle">
-                      {u.email} · {roleLabel(u.system_role)} · {formatDate(u.created_at)}
-                    </p>
+                  <li key={u.id}>
+                    <Link
+                      to={`/users/${u.id}`}
+                      className="block rounded-lg border border-line px-3 py-2 hover:bg-surface-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="truncate font-medium">{u.display_name}</span>
+                        <UserStatusBadge status={u.status} />
+                      </div>
+                      <p className="truncate text-xs text-fg-subtle">
+                        {u.email} · {roleLabel(u.system_role)} · {formatDate(u.created_at)}
+                      </p>
+                    </Link>
                   </li>
                 ))}
               </ul>

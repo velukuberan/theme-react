@@ -1,9 +1,9 @@
 import { useSearchParams } from "react-router";
-import { listMySessions, type SessionStatus } from "../../backend/users";
-import { Pagination } from "../../components/Pagination";
-import { Section } from "../../components/Section";
+import type { SessionStatus, SessionsPage } from "../../backend/users";
 import { useAsync } from "../../hooks/useAsync";
 import { errorMessage, formatDate, timeAgo } from "../../lib/format";
+import { Pagination } from "../Pagination";
+import { Section } from "../Section";
 import { deviceName, endedAt, ipAddress, newestFirst, StatusBadge, Time } from "./sessionDisplay";
 
 const PAGE_SIZE = 25;
@@ -17,14 +17,22 @@ const FILTERS: { value: SessionStatus | ""; label: string }[] = [
 const isStatus = (value: string | null): value is SessionStatus =>
   value === "active" || value === "revoked" || value === "expired";
 
+type Props = {
+  description: string;
+  /** Loads one page of sessions. */
+  load: (params: { limit: number; offset: number; status?: SessionStatus }) => Promise<SessionsPage>;
+  /** Bumped by the parent after any change, so the history reloads. */
+  version: number;
+};
+
 /** All sessions, newest first, paginated. Page and filter live in the URL (?page=2&status=revoked). */
-export function SessionHistory({ version }: { version: number }) {
+export function SessionHistory({ description, load, version }: Props) {
   const [params, setParams] = useSearchParams();
   const status = isStatus(params.get("status")) ? (params.get("status") as SessionStatus) : undefined;
   const page = Math.max(1, Number.parseInt(params.get("page") ?? "1", 10) || 1);
 
   const { data, error, loading } = useAsync(
-    () => listMySessions({ limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE, status }),
+    () => load({ limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE, status }),
     [page, status, version],
   );
   const sessions = [...(data?.data ?? [])].sort(newestFirst);
@@ -61,7 +69,7 @@ export function SessionHistory({ version }: { version: number }) {
   );
 
   return (
-    <Section title="Session history" description="Every sign-in to your account, newest first." actions={filters}>
+    <Section title="Session history" description={description} actions={filters}>
       <div className={`space-y-4 transition-opacity ${loading && data ? "opacity-60" : ""}`}>
         {error ? (
           <p role="alert" className="text-xs text-err">

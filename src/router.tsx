@@ -9,6 +9,9 @@ import { SessionsTab } from "./pages/profile/SessionsTab";
 import { RegisterPage } from "./pages/RegisterPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { NewUserPage } from "./pages/users/NewUserPage";
+import { UserDetailsTab } from "./pages/users/UserDetailsTab";
+import { UserLayout } from "./pages/users/UserLayout";
+import { UserSessionsTab } from "./pages/users/UserSessionsTab";
 import { UsersListPage } from "./pages/users/UsersListPage";
 import { WorkbenchPage } from "./pages/WorkbenchPage";
 
@@ -18,7 +21,8 @@ import { WorkbenchPage } from "./pages/WorkbenchPage";
  *   /login, /register               full-screen, signed-out only
  *   /, /profile, /profile/sessions, /settings, /help
  *                                   inside the app shell (App), signed-in only
- *   /users, /users/new              also need the users.manage permission (else: home)
+ *   /users, /users/new, /users/:userId[/sessions]
+ *                                   also need the users.manage permission (else: home)
  */
 export const router = createHashRouter([
   {
@@ -48,6 +52,14 @@ export const router = createHashRouter([
             children: [
               { path: "/users", element: <UsersListPage /> },
               { path: "/users/new", element: <NewUserPage /> },
+              {
+                path: "/users/:userId",
+                element: <UserLayout />,
+                children: [
+                  { index: true, element: <UserDetailsTab /> },
+                  { path: "sessions", element: <UserSessionsTab /> },
+                ],
+              },
             ],
           },
           { path: "/settings", element: <SettingsPage /> },
