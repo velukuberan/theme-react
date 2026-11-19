@@ -1,4 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import { initials, useAuth } from "../../auth/AuthContext";
 import { LogOutIcon, UserIcon } from "../icons";
 
 /**
@@ -10,6 +12,8 @@ export function UserMenu() {
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuId = useId();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!open) return;
@@ -32,8 +36,16 @@ export function UserMenu() {
     };
   }, [open]);
 
-  // Placeholders until there's a profile page and auth: picking an item just closes the menu.
-  const pick = () => setOpen(false);
+  const goToProfile = () => {
+    setOpen(false);
+    navigate("/profile");
+  };
+
+  const onSignOut = () => {
+    setOpen(false);
+    signOut();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div ref={rootRef} className="relative">
@@ -46,7 +58,7 @@ export function UserMenu() {
         onClick={() => setOpen((v) => !v)}
         className="grid size-7 cursor-pointer place-items-center rounded-full bg-put text-xs font-semibold text-white hover:ring-2 hover:ring-line-strong aria-expanded:ring-2 aria-expanded:ring-accent"
       >
-        VK
+        {user ? initials(user.name) : "?"}
       </button>
 
       {open && (
@@ -56,7 +68,7 @@ export function UserMenu() {
         >
           <button
             type="button"
-            onClick={pick}
+            onClick={goToProfile}
             className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-fg-muted hover:bg-surface-2 hover:text-fg"
           >
             <UserIcon className="size-4" />
@@ -67,7 +79,7 @@ export function UserMenu() {
 
           <button
             type="button"
-            onClick={pick}
+            onClick={onSignOut}
             className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-fg-muted hover:bg-surface-2 hover:text-delete"
           >
             <LogOutIcon className="size-4" />
