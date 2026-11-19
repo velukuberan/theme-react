@@ -9,6 +9,7 @@
   <script>
     (() => {
       var t = "system";
+      try { t = localStorage.getItem("apiconsole.theme") || "system"; } catch {}
       if (["system", "light", "dark"].indexOf(t) < 0) t = "system";
       document.documentElement.setAttribute("data-theme", t);
     })();
