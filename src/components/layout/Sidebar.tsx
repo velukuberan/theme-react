@@ -1,7 +1,7 @@
 import { NavLink } from "react-router";
 import { ChevronDownIcon, CloseIcon, FilterIcon } from "../icons";
 import { type HttpMethod, MethodBadge } from "../MethodBadge";
-import { PAGE_LINKS, SECTIONS, type View } from "./IconRail";
+import { SECTIONS, useVisiblePageLinks, type View } from "./IconRail";
 
 const ITEMS: { method: HttpMethod; name: string; active?: boolean }[] = [
   { method: "GET", name: "List users" },
@@ -23,6 +23,7 @@ type Props = {
 
 export function Sidebar({ view, onChangeView, onClose }: Props) {
   const open = view !== null;
+  const pageLinks = useVisiblePageLinks();
   const title = view ? TITLES[view] : "";
 
   return (
@@ -124,8 +125,8 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
 
         {/* Items the top bar hides on small screens */}
         <div className="mt-auto space-y-2 border-t border-line p-3 md:hidden">
-          {/* Help and Settings live at the bottom of the icon rail, which is hidden below md */}
-          {PAGE_LINKS.map(({ to, label, Icon }) => (
+          {/* Page links (Users, Help, Settings) live in the icon rail, which is hidden below md */}
+          {pageLinks.map(({ to, label, Icon }) => (
             <NavLink
               key={to}
               to={to}

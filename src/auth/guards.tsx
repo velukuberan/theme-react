@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { Button } from "../components/forms/Button";
 import { useAuth } from "./AuthContext";
+import { type Permission, useCan } from "./permissions";
 
 /** Shown while a saved session is being checked, so the login page doesn't flash. */
 function Splash() {
@@ -60,4 +61,13 @@ export function GuestOnly() {
   if (status === "offline") return <Offline />;
   const from = (location.state as { from?: string } | null)?.from ?? "/";
   return status === "authenticated" ? <Navigate to={from} replace /> : <Outlet />;
+}
+
+/**
+ * Pages only some users may open. Their menu entries are hidden already; this covers a typed URL,
+ * an old bookmark or a role that changed. No "access denied" page: quietly go home.
+ */
+export function RequirePermission({ permission }: { permission: Permission }) {
+  const can = useCan();
+  return can(permission) ? <Outlet /> : <Navigate to="/" replace />;
 }
