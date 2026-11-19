@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en" data-theme="system">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Console</title>
+
+  <!-- Apply the saved theme before anything is drawn, so there's no flash of the wrong theme. -->
+  <script>
+    (function () {
+      var t = "system";
+      try { t = localStorage.getItem("apiconsole.theme") || "system"; } catch (e) {}
+      if (["system", "light", "dark"].indexOf(t) < 0) t = "system";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+
+<body class="grid h-dvh grid-cols-1 grid-rows-[auto_1fr_auto] overflow-hidden bg-canvas font-sans text-[13px] text-fg">
+  <!-- ===================== TOP BAR ===================== -->
+  <header class="flex h-11 items-center gap-2 border-b border-line bg-surface px-2 sm:gap-3 sm:px-3">
+    <!-- Menu button: only below lg, opens the sidebar drawer -->
+    <button data-action="toggle-sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Open sidebar"
+            class="grid size-8 place-items-center rounded-md text-fg-muted hover:bg-surface-2 hover:text-fg lg:hidden">
+      <svg class="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+
+    <div class="flex items-center gap-2 font-semibold">
+      <span class="grid size-[22px] place-items-center rounded-md bg-accent font-mono text-xs text-on-accent">{ }</span>
+      <span class="hidden sm:inline">API Console</span>
+    </div>
+
+    <button class="hidden items-center gap-1 rounded-md px-2.5 py-1 text-fg-muted hover:bg-surface-2 hover:text-fg md:flex">
+      Restling Workspace
+      <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+
+    <label class="mx-auto hidden w-full max-w-md items-center gap-2 rounded-lg border border-line bg-surface-2 px-2.5 py-1.5 text-fg-subtle focus-within:border-accent lg:flex">
+      <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="global-search" placeholder="Search requests" class="min-w-0 flex-1 bg-transparent text-fg outline-none placeholder:text-fg-subtle" />
+      <kbd class="rounded border border-line-strong px-1.5 font-mono text-[11px]">Ctrl K</kbd>
+    </label>
+
+    <div class="ml-auto flex items-center gap-2 lg:ml-0">
+      <!-- Theme switcher (icons) -->
+      <div class="flex gap-0.5 rounded-lg border border-line bg-surface-2 p-0.5" role="group" aria-label="Theme">
+        <button data-theme-value="system" aria-label="System theme"
+                class="grid h-6 w-7 place-items-center rounded-md text-fg-subtle hover:text-fg aria-pressed:bg-canvas aria-pressed:text-accent">
+          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+        </button>
+        <button data-theme-value="light" aria-label="Light theme" title="Light theme"
+                class="grid h-6 w-7 place-items-center rounded-md text-fg-subtle hover:text-fg aria-pressed:bg-canvas aria-pressed:text-accent">
+          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <button data-theme-value="dark" aria-label="Dark theme" title="Dark theme"
+                class="grid h-6 w-7 place-items-center rounded-md text-fg-subtle hover:text-fg aria-pressed:bg-canvas aria-pressed:text-accent">
+          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+      </div>
+
+      <select id="env-select" aria-label="Environment"
+              class="hidden rounded-md border border-line bg-surface-2 px-2 py-1 text-fg outline-none focus:border-accent sm:block">
+        <option value="local">Local</option>
+        <option value="staging">Staging</option>
+        <option value="none">No environment</option>
+      </select>
+
+      <div class="grid size-7 place-items-center rounded-full bg-put text-xs font-semibold text-white">VK</div>
+    </div>
+  </header>
+
+  <!-- ===================== BODY ===================== -->
+  <div class="relative flex min-h-0">
+
+    <!-- Icon rail: md and up -->
+    <nav aria-label="Sections" class="hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-line bg-surface py-2 md:flex">
+      <button aria-current="page" class="flex w-12 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] text-fg-subtle hover:bg-surface-2 hover:text-fg aria-[current=page]:bg-accent-soft aria-[current=page]:text-accent">
+        <svg class="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        APIs
+      </button>
+      <button class="flex w-12 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] text-fg-subtle hover:bg-surface-2 hover:text-fg">
+        <svg class="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+        Env
+      </button>
+      <button class="flex w-12 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] text-fg-subtle hover:bg-surface-2 hover:text-fg">
+        <svg class="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>
+        History
+      </button>
+    </nav>
+
+    <!-- Backdrop: only visible while the drawer is open below lg -->
+    <div data-sidebar-backdrop data-open="false"
+         class="fixed inset-0 z-30 hidden bg-black/40 data-[open=true]:block lg:hidden"></div>
+
+    <!-- Sidebar: a slide-in drawer below lg, a normal column from lg up -->
+    <aside id="sidebar" data-open="false" aria-label="Collections"
+           class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-line bg-surface shadow-xl
+                  transition-transform duration-200 data-[open=true]:translate-x-0
+                  lg:static lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none">
+      <div class="flex items-center gap-2 px-3 pt-3 pb-2">
+        <h2 class="flex-1 font-semibold">Collections</h2>
+        <button class="rounded-md border border-line-strong bg-surface-3 px-2.5 py-0.5 hover:border-accent">+ New</button>
+        <button data-action="close-sidebar" aria-label="Close sidebar"
+                class="grid size-7 place-items-center rounded-md text-fg-subtle hover:bg-surface-2 hover:text-fg lg:hidden">✕</button>
+      </div>
+      <label class="mx-3 mb-2 flex items-center gap-2 rounded-md border border-line bg-surface-2 px-2 py-1 text-fg-subtle">
+        <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+        <input id="tree-filter" placeholder="Filter" class="min-w-0 flex-1 bg-transparent text-xs text-fg outline-none" />
+      </label>
+
+      <!-- Placeholder items: Step 6 generates these from data -->
+      <nav id="tree" class="flex-1 space-y-0.5 overflow-y-auto px-2 pb-3">
+        <div class="px-2 py-1 font-medium text-fg-muted">▾ User Management</div>
+        <a href="#" class="flex items-center gap-2 rounded-md py-1 pr-2 pl-5 text-fg-muted hover:bg-surface-2 hover:text-fg">
+          <span class="w-10 text-right font-mono text-[10px] font-semibold text-get">GET</span> List users
+        </a>
+        <a href="#" class="flex items-center gap-2 rounded-md bg-surface-3 py-1 pr-2 pl-5 text-fg">
+          <span class="w-10 text-right font-mono text-[10px] font-semibold text-post">POST</span> Create user
+        </a>
+        <a href="#" class="flex items-center gap-2 rounded-md py-1 pr-2 pl-5 text-fg-muted hover:bg-surface-2 hover:text-fg">
+          <span class="w-10 text-right font-mono text-[10px] font-semibold text-delete">DEL</span> Deactivate user
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ===================== WORKBENCH ===================== -->
+    <!-- Below md the whole workbench scrolls; from md up the panes fill the height and scroll inside. -->
+    <main id="workbench" class="flex min-w-0 flex-1 flex-col overflow-y-auto md:overflow-hidden">
+
+      <!-- Request tabs -->
+      <div id="tabs" role="tablist" aria-label="Open requests"
+           class="scrollbar-none flex h-9 shrink-0 overflow-x-auto border-b border-line bg-surface">
+        <div role="tab" aria-selected="false"
+             class="group relative flex w-40 shrink-0 cursor-pointer items-center gap-1.5 border-r border-line pr-1.5 pl-3 text-fg-muted hover:bg-surface-2
+                    aria-selected:bg-canvas aria-selected:text-fg sm:w-48">
+          <span class="font-mono text-[10px] font-semibold text-get">GET</span>
+          <span class="flex-1 truncate">List users</span>
+          <button aria-label="Close tab" class="grid size-5 place-items-center rounded text-fg-subtle opacity-0 group-hover:opacity-100 hover:bg-surface-3 hover:text-fg">✕</button>
+        </div>
+        <div role="tab" aria-selected="true"
+             class="group relative flex w-40 shrink-0 cursor-pointer items-center gap-1.5 border-r border-line pr-1.5 pl-3 text-fg-muted hover:bg-surface-2
+                    aria-selected:bg-canvas aria-selected:text-fg
+                    before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-accent before:opacity-0 aria-selected:before:opacity-100 sm:w-48">
+          <span class="font-mono text-[10px] font-semibold text-post">POST</span>
+          <span class="flex-1 truncate">Create user</span>
+          <button aria-label="Close tab" class="grid size-5 place-items-center rounded text-fg-subtle hover:bg-surface-3 hover:text-fg">✕</button>
+        </div>
+        <button aria-label="New request" class="shrink-0 px-3 text-lg text-fg-subtle hover:text-fg">+</button>
+      </div>
+
+      <!-- Breadcrumb + actions -->
+      <div class="flex shrink-0 items-center gap-2 px-3 pt-2.5 text-xs text-fg-subtle sm:px-4">
+        <span class="hidden truncate sm:inline">User Management</span>
+        <span class="hidden sm:inline">/</span>
+        <b id="crumb-name" class="truncate text-[13px] font-medium text-fg">Create user</b>
+        <label class="ml-auto flex shrink-0 cursor-pointer items-center gap-1.5 text-fg-muted" title="Return sample data instead of calling the API">
+          <input id="mock-toggle" type="checkbox" checked class="peer sr-only" />
+          <span class="relative h-4 w-7 rounded-full bg-surface-3 transition peer-checked:bg-accent
+                       after:absolute after:top-0.5 after:left-0.5 after:size-3 after:rounded-full after:bg-fg-muted after:transition
+                       peer-checked:after:translate-x-3 peer-checked:after:bg-on-accent"></span>
+          <span class="hidden sm:inline">Mock responses</span>
+        </label>
+        <button class="shrink-0 rounded-md border border-line-strong px-2.5 py-1 text-fg-muted hover:border-fg-subtle hover:text-fg">Save</button>
+      </div>
+
+      <!-- Method + URL + Send -->
+      <div class="flex shrink-0 gap-2 px-3 py-2.5 sm:px-4">
+        <div class="flex min-w-0 flex-1 overflow-hidden rounded-lg border border-line-strong bg-surface focus-within:border-accent">
+          <select id="method" aria-label="HTTP method"
+                  class="w-20 shrink-0 cursor-pointer appearance-none border-r border-line-strong bg-surface-2 px-2.5 font-mono text-xs font-bold text-post outline-none sm:w-26">
+            <option>GET</option><option selected>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option>
+          </select>
+          <input id="url" spellcheck="false" value="{{base_url}}/users" aria-label="Request URL"
+                 class="min-w-0 flex-1 bg-transparent px-3 py-2 font-mono text-[13px] outline-none" />
+        </div>
+        <button id="send-btn" class="flex shrink-0 items-center gap-2 rounded-lg bg-accent px-3.5 font-bold text-on-accent hover:bg-accent-hover disabled:cursor-progress disabled:opacity-60 sm:px-5">
+          <span class="hidden sm:inline">Send</span>
+          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <!-- Request / response split -->
+      <div id="split" class="flex flex-col md:min-h-0 md:flex-1">
+
+        <!-- Request pane -->
+        <section id="req-pane" aria-label="Request" class="flex flex-col md:min-h-0 md:shrink-0 md:basis-[45%]">
+          <div role="tablist" aria-label="Request options"
+               class="scrollbar-none flex shrink-0 gap-0.5 overflow-x-auto border-b border-line px-2 sm:px-3">
+            <button role="tab" aria-selected="false" class="relative shrink-0 px-2 py-2 text-fg-muted hover:text-fg aria-selected:text-fg after:absolute after:inset-x-1.5 after:-bottom-px after:h-0.5 after:rounded after:bg-accent after:opacity-0 aria-selected:after:opacity-100">Params</button>
+            <button role="tab" aria-selected="false" class="relative shrink-0 px-2 py-2 text-fg-muted hover:text-fg aria-selected:text-fg after:absolute after:inset-x-1.5 after:-bottom-px after:h-0.5 after:rounded after:bg-accent after:opacity-0 aria-selected:after:opacity-100">Authorization</button>
+            <button role="tab" aria-selected="false" class="relative shrink-0 px-2 py-2 text-fg-muted hover:text-fg aria-selected:text-fg after:absolute after:inset-x-1.5 after:-bottom-px after:h-0.5 after:rounded after:bg-accent after:opacity-0 aria-selected:after:opacity-100">Headers <span class="text-[11px] text-accent">2</span></button>
+            <button role="tab" aria-selected="true"  class="relative shrink-0 px-2 py-2 text-fg-muted hover:text-fg aria-selected:text-fg after:absolute after:inset-x-1.5 after:-bottom-px after:h-0.5 after:rounded after:bg-accent after:opacity-0 aria-selected:after:opacity-100">Body</button>
+            <button role="tab" aria-selected="false" class="relative shrink-0 px-2 py-2 text-fg-muted hover:text-fg aria-selected:text-fg after:absolute after:inset-x-1.5 after:-bottom-px after:h-0.5 after:rounded after:bg-accent after:opacity-0 aria-selected:after:opacity-100">Settings</button>
+          </div>
+
+          <!-- Step 6 renders the selected tab here; static Body example for now -->
+          <div id="req-body" class="min-h-48 md:min-h-0 md:flex-1 md:overflow-auto">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2.5 text-xs text-fg-muted sm:px-4">
+              <label class="flex items-center gap-1.5"><input type="radio" name="body-mode" class="accent-accent" /> none</label>
+              <label class="flex items-center gap-1.5"><input type="radio" name="body-mode" class="accent-accent" /> form-data</label>
+              <label class="flex items-center gap-1.5"><input type="radio" name="body-mode" class="accent-accent" checked /> raw</label>
+              <span class="text-accent">JSON</span>
+              <button class="ml-auto text-accent hover:underline">Beautify</button>
+            </div>
+            <div class="grid grid-cols-[2.75rem_1fr] font-mono text-[12.5px] leading-relaxed">
+              <pre aria-hidden="true" class="border-r border-line py-2 pr-2.5 text-right text-fg-subtle select-none">1
+2
+3
+4
+5</pre>
+              <textarea id="body-text" spellcheck="false" rows="5" aria-label="Request body"
+                        class="resize-none bg-transparent px-3 py-2 whitespace-pre outline-none">{
+  "email": "jane@example.com",
+  "display_name": "Jane Doe",
+  "job_title": "Engineer"
+}</textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- Drag handle: md and up -->
+        <div id="resizer" role="separator" aria-orientation="horizontal" aria-label="Resize request and response panes" tabindex="0"
+             class="relative z-10 -my-0.5 hidden h-1 shrink-0 cursor-row-resize hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:outline-none data-[dragging=true]:bg-accent/50 md:block"></div>
+
+        <!-- Response pane -->
+        <section id="res-pane" aria-label="Response" class="flex flex-col border-t border-line md:min-h-0 md:flex-1">
+          <div class="flex shrink-0 flex-wrap items-center gap-x-1 border-b border-line px-2 sm:px-3">
+            <div role="tablist" aria-label="Response views" class="flex gap-0.5">
+              <button role="tab" aria-selected="true"  class="relative px-2 py-2 text-fg-muted hover:text-fg aria-selected:text-fg after:absolute after:inset-x-1.5 after:-bottom-px after:h-0.5 after:rounded after:bg-accent after:opacity-0 aria-selected:after:opacity-100">Body</button>
+              <button role="tab" aria-selected="false" class="relative px-2 py-2 text-fg-muted hover:text-fg aria-selected:text-fg after:absolute after:inset-x-1.5 after:-bottom-px after:h-0.5 after:rounded after:bg-accent after:opacity-0 aria-selected:after:opacity-100">Headers <span class="text-[11px] text-accent">5</span></button>
+            </div>
+            <!-- Status meta: wraps onto its own line on narrow screens -->
+            <div id="res-meta" class="ml-auto flex gap-3 py-1.5 text-xs text-fg-subtle sm:gap-4">
+              <span>Status: <b class="font-semibold text-ok">201 Created</b></span>
+              <span>Time: <b class="font-medium text-fg-muted">194 ms</b></span>
+              <span>Size: <b class="font-medium text-fg-muted">157 B</b></span>
+            </div>
+          </div>
+
+          <!-- Step 6 renders the response here; static example for now -->
+          <div id="res-body" class="min-h-64 md:min-h-0 md:flex-1 md:overflow-auto">
+            <div class="grid grid-cols-[2.75rem_1fr] font-mono text-[12.5px] leading-relaxed">
+              <pre aria-hidden="true" class="border-r border-line py-2 pr-2.5 text-right text-fg-subtle select-none">1
+2
+3
+4
+5
+6
+7
+8
+9</pre>
+              <pre class="overflow-x-auto px-3 py-2"><span class="text-fg-subtle">{</span>
+  <span class="text-put">"id"</span><span class="text-fg-subtle">:</span> <span class="text-post">44</span><span class="text-fg-subtle">,</span>
+  <span class="text-put">"email"</span><span class="text-fg-subtle">:</span> <span class="text-get">"jane@example.com"</span><span class="text-fg-subtle">,</span>
+  <span class="text-put">"display_name"</span><span class="text-fg-subtle">:</span> <span class="text-get">"Jane Doe"</span><span class="text-fg-subtle">,</span>
+  <span class="text-put">"job_title"</span><span class="text-fg-subtle">:</span> <span class="text-get">"Engineer"</span><span class="text-fg-subtle">,</span>
+  <span class="text-put">"status"</span><span class="text-fg-subtle">:</span> <span class="text-get">"pending"</span><span class="text-fg-subtle">,</span>
+  <span class="text-put">"system_role"</span><span class="text-fg-subtle">:</span> <span class="text-get">"user"</span><span class="text-fg-subtle">,</span>
+  <span class="text-put">"password_reset_required"</span><span class="text-fg-subtle">:</span> <span class="text-patch">false</span>
+<span class="text-fg-subtle">}</span></pre>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ===================== STATUS BAR ===================== -->
+  <footer class="flex h-7 items-center gap-4 border-t border-line bg-surface px-3 text-[11.5px] text-fg-subtle">
+    <span class="flex items-center gap-1.5"><span id="conn-dot" class="size-[7px] rounded-full bg-ok"></span><span id="conn-text">Ready</span></span>
+    <span id="env-info" class="hidden truncate sm:inline">base_url → http://localhost:8000/api/v1</span>
+    <span class="ml-auto hidden gap-4 sm:flex"><button class="hover:text-fg">Console</button><button class="hover:text-fg">Cookies</button></span>
+    <span>v0.1</span>
+  </footer>
+</body>
+</html>

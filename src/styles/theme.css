@@ -1,0 +1,116 @@
+/* =========================================================
+   1. Raw colour values for each theme
+   ========================================================= */
+
+/* Dark: the default */
+:root {
+  --c-canvas: #17181c;
+  --c-surface: #1d1f24;
+  --c-surface-2: #23262c;
+  --c-surface-3: #2b2e35;
+  --c-line: #2f333b;
+  --c-line-strong: #3a3f48;
+  --c-fg: #e6e8ec;
+  --c-fg-muted: #a4aab4;
+  --c-fg-subtle: #6f7681;
+  --c-accent: #3fb6a8;
+  --c-accent-hover: #2e9a8d;
+  --c-accent-soft: rgb(63 182 168 / 0.14);
+  --c-on-accent: #0b1f1d;
+  --c-get: #5cc58a;
+  --c-post: #e8b64c;
+  --c-put: #5b9cf0;
+  --c-patch: #b48cf2;
+  --c-delete: #f06b6b;
+  --c-ok: #5cc58a;
+  --c-warn: #e8b64c;
+  --c-err: #f06b6b;
+  color-scheme: dark;
+}
+
+/* Light: chosen explicitly */
+:root[data-theme="light"] {
+  --c-canvas: #ffffff;
+  --c-surface: #f6f7f9;
+  --c-surface-2: #eef0f3;
+  --c-surface-3: #e3e6eb;
+  --c-line: #e1e4e9;
+  --c-line-strong: #cfd4db;
+  --c-fg: #1d2026;
+  --c-fg-muted: #4f5663;
+  --c-fg-subtle: #8a919c;
+  --c-accent: #1f9a8c;
+  --c-accent-hover: #187f73;
+  --c-accent-soft: rgb(31 154 140 / 0.12);
+  --c-on-accent: #ffffff;
+  --c-get: #1f9d55;
+  --c-post: #b7791f;
+  --c-put: #2b6cb0;
+  --c-patch: #7c4dcc;
+  --c-delete: #d64545;
+  --c-ok: #1f9d55;
+  --c-warn: #b7791f;
+  --c-err: #d64545;
+  color-scheme: light;
+}
+
+/* Light: "System" chosen and the OS is in light mode (same values as above) */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    --c-canvas: #ffffff;
+    --c-surface: #f6f7f9;
+    --c-surface-2: #eef0f3;
+    --c-surface-3: #e3e6eb;
+    --c-line: #e1e4e9;
+    --c-line-strong: #cfd4db;
+    --c-fg: #1d2026;
+    --c-fg-muted: #4f5663;
+    --c-fg-subtle: #8a919c;
+    --c-accent: #1f9a8c;
+    --c-accent-hover: #187f73;
+    --c-accent-soft: rgb(31 154 140 / 0.12);
+    --c-on-accent: #ffffff;
+    --c-get: #1f9d55;
+    --c-post: #b7791f;
+    --c-put: #2b6cb0;
+    --c-patch: #7c4dcc;
+    --c-delete: #d64545;
+    --c-ok: #1f9d55;
+    --c-warn: #b7791f;
+    --c-err: #d64545;
+    color-scheme: light;
+  }
+}
+
+/* =========================================================
+   2. Register them with Tailwind
+   Each --color-X becomes bg-X, text-X, border-X, ring-X …
+   "inline" makes the utilities use var(--c-…) directly,
+   so they switch whenever the variables change.
+   ========================================================= */
+@theme inline {
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-fg: var(--c-fg);
+  --color-fg-muted: var(--c-fg-muted);
+  --color-fg-subtle: var(--c-fg-subtle);
+  --color-accent: var(--c-accent);
+  --color-accent-hover: var(--c-accent-hover);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-on-accent: var(--c-on-accent);
+  --color-get: var(--c-get);
+  --color-post: var(--c-post);
+  --color-put: var(--c-put);
+  --color-patch: var(--c-patch);
+  --color-delete: var(--c-delete);
+  --color-ok: var(--c-ok);
+  --color-warn: var(--c-warn);
+  --color-err: var(--c-err);
+
+  --font-sans: Inter, "Segoe UI", system-ui, -apple-system, Roboto, Ubuntu, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
