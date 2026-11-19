@@ -1,6 +1,7 @@
+import { NavLink } from "react-router";
 import { ChevronDownIcon, CloseIcon, FilterIcon } from "../icons";
 import { type HttpMethod, MethodBadge } from "../MethodBadge";
-import { SECTIONS, type View } from "./IconRail";
+import { PAGE_LINKS, SECTIONS, type View } from "./IconRail";
 
 const ITEMS: { method: HttpMethod; name: string; active?: boolean }[] = [
   { method: "GET", name: "List users" },
@@ -12,8 +13,6 @@ const TITLES: Record<View, string> = {
   apis: "Collections",
   env: "Environments",
   history: "History",
-  help: "Help",
-  settings: "Settings",
 };
 
 type Props = {
@@ -65,7 +64,7 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
         <div
           role="tablist"
           aria-label="Sections"
-          className="mx-3 mt-3 mb-1 grid grid-cols-5 gap-1 rounded-lg bg-surface-2 p-1 md:hidden"
+          className="mx-3 mt-3 mb-1 grid grid-cols-3 gap-1 rounded-lg bg-surface-2 p-1 md:hidden"
         >
           {SECTIONS.map(({ id, label, Icon }) => (
             <button
@@ -125,6 +124,18 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
 
         {/* Items the top bar hides on small screens */}
         <div className="mt-auto space-y-2 border-t border-line p-3 md:hidden">
+          {/* Help and Settings live at the bottom of the icon rail, which is hidden below md */}
+          {PAGE_LINKS.map(({ to, label, Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={onClose}
+              className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-fg-muted hover:bg-surface-2 hover:text-fg aria-[current=page]:text-accent"
+            >
+              <Icon className="size-4" />
+              {label}
+            </NavLink>
+          ))}
           <button
             type="button"
             className="flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-fg-muted hover:bg-surface-2 hover:text-fg"
