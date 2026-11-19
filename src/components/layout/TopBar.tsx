@@ -1,3 +1,4 @@
+import { UserMenu } from "./UserMenu";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import { ChevronDownIcon, MenuIcon, SearchIcon } from "../icons";
 
@@ -52,7 +53,7 @@ export function TopBar({ onMenuClick }: Props) {
           <option value="none">No environment</option>
         </select>
 
-        <div className="grid size-7 place-items-center rounded-full bg-put text-xs font-semibold text-white">VK</div>
+        <UserMenu />
       </div>
     </header>
   );
