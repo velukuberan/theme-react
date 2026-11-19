@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes } from "react";
+import { type InputHTMLAttributes, useId } from "react";
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   label: string;

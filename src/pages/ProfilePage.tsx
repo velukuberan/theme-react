@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { type FormEvent, type ReactNode, useState } from "react";
 import { initials, useAuth } from "../auth/AuthContext";
 import { Button } from "../components/forms/Button";
 import { Field } from "../components/forms/Field";
@@ -25,7 +25,10 @@ export function ProfilePage() {
   const onSaveDetails = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    updateProfile({ name: String(form.get("name")).trim() || user.name, email: String(form.get("email")).trim() || user.email });
+    updateProfile({
+      name: String(form.get("name")).trim() || user.name,
+      email: String(form.get("email")).trim() || user.email,
+    });
     setSaved("Details saved.");
   };
 
@@ -82,7 +85,13 @@ export function ProfilePage() {
             <Field label="Current password" name="current" type="password" autoComplete="current-password" />
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="New password" name="new" type="password" autoComplete="new-password" minLength={8} />
-              <Field label="Confirm new password" name="confirm" type="password" autoComplete="new-password" error={passwordError} />
+              <Field
+                label="Confirm new password"
+                name="confirm"
+                type="password"
+                autoComplete="new-password"
+                error={passwordError}
+              />
             </div>
             <div className="flex justify-end">
               <Button type="submit" variant="secondary">

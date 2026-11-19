@@ -1,6 +1,6 @@
-import { UserMenu } from "./UserMenu";
-import { ThemeSwitcher } from "../ThemeSwitcher";
 import { ChevronDownIcon, MenuIcon, SearchIcon } from "../icons";
+import { ThemeSwitcher } from "../ThemeSwitcher";
+import { UserMenu } from "./UserMenu";
 
 type Props = { onMenuClick: () => void };
 
@@ -19,7 +19,9 @@ export function TopBar({ onMenuClick }: Props) {
       </button>
 
       <div className="flex items-center gap-2 font-semibold">
-        <span className="grid size-[22px] place-items-center rounded-md bg-accent font-mono text-xs text-on-accent">{"{ }"}</span>
+        <span className="grid size-[22px] place-items-center rounded-md bg-accent font-mono text-xs text-on-accent">
+          {"{ }"}
+        </span>
         <span className="hidden sm:inline">API Console</span>
       </div>
 

@@ -7,7 +7,7 @@ import { TopBar } from "./components/layout/TopBar";
 
 export function App() {
   const [view, setView] = useState<View | null>(() =>
-    window.matchMedia("(min-width: 1024px)").matches ? "apis" : null
+    window.matchMedia("(min-width: 1024px)").matches ? "apis" : null,
   );
 
   // Remember the last open section so the hamburger reopens it
@@ -27,7 +27,7 @@ export function App() {
         <IconRail active={view} onSelect={toggleView} />
         <Sidebar view={view} onChangeView={setView} onClose={() => setView(null)} />
         <main className="flex min-w-0 flex-1 flex-col">
-            <Outlet />
+          <Outlet />
         </main>
       </div>
 

@@ -7,8 +7,12 @@ export function StatusBar() {
       </span>
       <span className="hidden truncate sm:inline">base_url → http://localhost:8000/api/v1</span>
       <span className="ml-auto hidden gap-4 sm:flex">
-        <button type="button" className="hover:text-fg">Console</button>
-        <button type="button" className="hover:text-fg">Cookies</button>
+        <button type="button" className="hover:text-fg">
+          Console
+        </button>
+        <button type="button" className="hover:text-fg">
+          Cookies
+        </button>
       </span>
       <span>v0.1</span>
     </footer>
