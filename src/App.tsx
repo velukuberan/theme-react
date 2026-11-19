@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Outlet } from "react-router";
 import { IconRail, type View } from "./components/layout/IconRail";
 import { Sidebar } from "./components/layout/Sidebar";
 import { StatusBar } from "./components/layout/StatusBar";
@@ -26,9 +27,7 @@ export function App() {
         <IconRail active={view} onSelect={toggleView} />
         <Sidebar view={view} onChangeView={setView} onClose={() => setView(null)} />
         <main className="flex min-w-0 flex-1 flex-col">
-          <div className="grid flex-1 place-items-center p-6 text-center text-fg-subtle">
-            Workbench goes here (Step R4)
-          </div>
+            <Outlet />
         </main>
       </div>
 
