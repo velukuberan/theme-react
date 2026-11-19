@@ -8,7 +8,8 @@ import { ProfileLayout } from "./pages/profile/ProfileLayout";
 import { SessionsTab } from "./pages/profile/SessionsTab";
 import { RegisterPage } from "./pages/RegisterPage";
 import { SettingsPage } from "./pages/SettingsPage";
-import { UsersPage } from "./pages/UsersPage";
+import { NewUserPage } from "./pages/users/NewUserPage";
+import { UsersListPage } from "./pages/users/UsersListPage";
 import { WorkbenchPage } from "./pages/WorkbenchPage";
 
 /**
@@ -17,7 +18,7 @@ import { WorkbenchPage } from "./pages/WorkbenchPage";
  *   /login, /register               full-screen, signed-out only
  *   /, /profile, /profile/sessions, /settings, /help
  *                                   inside the app shell (App), signed-in only
- *   /users                          also needs the users.manage permission (else: home)
+ *   /users, /users/new              also need the users.manage permission (else: home)
  */
 export const router = createHashRouter([
   {
@@ -44,7 +45,10 @@ export const router = createHashRouter([
           },
           {
             element: <RequirePermission permission="users.manage" />,
-            children: [{ path: "/users", element: <UsersPage /> }],
+            children: [
+              { path: "/users", element: <UsersListPage /> },
+              { path: "/users/new", element: <NewUserPage /> },
+            ],
           },
           { path: "/settings", element: <SettingsPage /> },
           { path: "/help", element: <HelpPage /> },

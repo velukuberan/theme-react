@@ -1,7 +1,7 @@
 import { NavLink } from "react-router";
-import { ChevronDownIcon, CloseIcon, FilterIcon } from "../icons";
+import { ChevronDownIcon, CloseIcon, FilterIcon, UserPlusIcon, UsersIcon } from "../icons";
 import { type HttpMethod, MethodBadge } from "../MethodBadge";
-import { SECTIONS, useVisiblePageLinks, type View } from "./IconRail";
+import { useVisiblePageLinks, useVisibleSections, type View } from "./IconRail";
 
 const ITEMS: { method: HttpMethod; name: string; active?: boolean }[] = [
   { method: "GET", name: "List users" },
@@ -13,7 +13,17 @@ const TITLES: Record<View, string> = {
   apis: "Collections",
   env: "Environments",
   history: "History",
+  users: "Users",
 };
+
+/** The Users submenu. `end`: "All users" is active only on exactly /users. */
+const USER_LINKS = [
+  { to: "/users", label: "All users", Icon: UsersIcon, end: true },
+  { to: "/users/new", label: "Add new user", Icon: UserPlusIcon, end: false },
+];
+
+/** From lg up the sidebar is a column that stays open; below lg it's a drawer that a link should close. */
+const isDrawer = () => !window.matchMedia("(min-width: 64rem)").matches;
 
 type Props = {
   view: View | null; // null = collapsed
@@ -24,6 +34,10 @@ type Props = {
 export function Sidebar({ view, onChangeView, onClose }: Props) {
   const open = view !== null;
   const pageLinks = useVisiblePageLinks();
+  const sections = useVisibleSections();
+  const closeIfDrawer = () => {
+    if (isDrawer()) onClose();
+  };
   const title = view ? TITLES[view] : "";
 
   return (
@@ -65,9 +79,10 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
         <div
           role="tablist"
           aria-label="Sections"
-          className="mx-3 mt-3 mb-1 grid grid-cols-3 gap-1 rounded-lg bg-surface-2 p-1 md:hidden"
+          className="mx-3 mt-3 mb-1 grid gap-1 rounded-lg bg-surface-2 p-1 md:hidden"
+          style={{ gridTemplateColumns: `repeat(${sections.length}, minmax(0, 1fr))` }}
         >
-          {SECTIONS.map(({ id, label, Icon }) => (
+          {sections.map(({ id, label, Icon }) => (
             <button
               key={id}
               type="button"
@@ -121,11 +136,30 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
           </>
         )}
 
-        {view !== null && view !== "apis" && <p className="px-3 py-2 text-xs text-fg-subtle">{title}: coming soon.</p>}
+        {view === "users" && (
+          <nav aria-label="Users" className="flex-1 space-y-0.5 overflow-y-auto px-2 pb-3">
+            {USER_LINKS.map(({ to, label, Icon, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                onClick={closeIfDrawer}
+                className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-fg-muted hover:bg-surface-2 hover:text-fg aria-[current=page]:bg-surface-3 aria-[current=page]:text-fg"
+              >
+                <Icon className="size-4 shrink-0" />
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
+
+        {(view === "env" || view === "history") && (
+          <p className="px-3 py-2 text-xs text-fg-subtle">{title}: coming soon.</p>
+        )}
 
         {/* Items the top bar hides on small screens */}
         <div className="mt-auto space-y-2 border-t border-line p-3 md:hidden">
-          {/* Page links (Users, Help, Settings) live in the icon rail, which is hidden below md */}
+          {/* Page links (Help, Settings) live in the icon rail, which is hidden below md */}
           {pageLinks.map(({ to, label, Icon }) => (
             <NavLink
               key={to}
