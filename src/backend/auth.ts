@@ -1,20 +1,6 @@
 import { request } from "./client";
 
-/** Matches UserDetail in the server's OpenAPI spec. */
-export type UserDetail = {
-  id: string;
-  email: string;
-  display_name: string;
-  job_title: string | null;
-  status: string;
-  system_role: string;
-  created_at: string;
-  updated_at: string;
-  activated_at: string | null;
-  password_reset_required: boolean;
-};
-
-/** Matches LoginTokenData. */
+/** Matches LoginTokenData (returned by both /auth/login and /auth/refresh). */
 export type LoginTokenData = {
   access_token: string;
   refresh_token: string;
@@ -32,11 +18,15 @@ export async function login(email: string, password: string): Promise<LoginToken
   return data;
 }
 
-export async function getMe(token: string): Promise<UserDetail> {
-  const { data } = await request<{ data: UserDetail }>("/api/v1/users/me", { token });
+/** Rotates the refresh token: the one passed in stops working once this succeeds. */
+export async function refresh(refreshToken: string): Promise<LoginTokenData> {
+  const { data } = await request<{ data: LoginTokenData }>("/api/v1/auth/refresh", {
+    method: "POST",
+    body: { refresh_token: refreshToken },
+  });
   return data;
 }
 
-export async function logout(token: string): Promise<void> {
-  await request<void>("/api/v1/auth/logout", { method: "POST", token });
+export async function logout(accessToken: string): Promise<void> {
+  await request<void>("/api/v1/auth/logout", { method: "POST", token: accessToken });
 }
