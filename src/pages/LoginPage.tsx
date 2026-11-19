@@ -7,7 +7,7 @@ import { Field } from "../components/forms/Field";
 import { AuthLayout } from "./AuthLayout";
 
 export function LoginPage() {
-  const { signIn } = useAuth();
+  const { signIn, endReason } = useAuth();
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -55,6 +55,11 @@ export function LoginPage() {
           autoComplete="current-password"
           placeholder="••••••••"
         />
+        {!error && endReason === "expired" && (
+          <p role="status" className="text-xs text-warn">
+            Your session has expired. Please sign in again.
+          </p>
+        )}
         {error && (
           <p role="alert" className="text-xs text-err">
             {error}
