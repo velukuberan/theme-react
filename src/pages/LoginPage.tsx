@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../auth/AuthContext";
 import { Button } from "../components/forms/Button";
@@ -43,7 +43,13 @@ export function LoginPage() {
     >
       <form onSubmit={onSubmit} noValidate className="space-y-4">
         <Field label="Email" name="email" type="email" autoComplete="email" placeholder="you@example.com" autoFocus />
-        <Field label="Password" name="password" type="password" autoComplete="current-password" placeholder="••••••••" />
+        <Field
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+        />
         {error && <p className="text-xs text-err">{error}</p>}
         <Button type="submit" className="w-full">
           Sign in

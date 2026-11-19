@@ -1,5 +1,5 @@
 import type { ComponentType, SVGProps } from "react";
-import { useTheme, type Theme } from "../hooks/useTheme";
+import { type Theme, useTheme } from "../hooks/useTheme";
 import { MonitorIcon, MoonIcon, SunIcon } from "./icons";
 
 const OPTIONS: { value: Theme; label: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
@@ -12,7 +12,8 @@ export function ThemeSwitcher() {
   const { theme, setTheme, resolved } = useTheme();
 
   return (
-    <div className="flex gap-0.5 rounded-lg border border-line bg-surface-2 p-0.5" role="group" aria-label="Theme">
+    <fieldset className="flex gap-0.5 rounded-lg border border-line bg-surface-2 p-0.5">
+      <legend className="sr-only">Theme</legend>
       {OPTIONS.map(({ value, label, Icon }) => (
         <button
           key={value}
@@ -26,6 +27,6 @@ export function ThemeSwitcher() {
           <Icon className="size-3.5" />
         </button>
       ))}
-    </div>
+    </fieldset>
   );
 }

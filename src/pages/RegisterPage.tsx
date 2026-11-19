@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../auth/AuthContext";
 import { Button } from "../components/forms/Button";
@@ -50,9 +50,29 @@ export function RegisterPage() {
     >
       <form onSubmit={onSubmit} noValidate className="space-y-4">
         <Field label="Name" name="name" autoComplete="name" placeholder="Your name" error={errors.name} autoFocus />
-        <Field label="Email" name="email" type="email" autoComplete="email" placeholder="you@example.com" error={errors.email} />
-        <Field label="Password" name="password" type="password" autoComplete="new-password" placeholder={`At least ${MIN_PASSWORD} characters`} error={errors.password} />
-        <Field label="Confirm password" name="confirm" type="password" autoComplete="new-password" error={errors.confirm} />
+        <Field
+          label="Email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          error={errors.email}
+        />
+        <Field
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          placeholder={`At least ${MIN_PASSWORD} characters`}
+          error={errors.password}
+        />
+        <Field
+          label="Confirm password"
+          name="confirm"
+          type="password"
+          autoComplete="new-password"
+          error={errors.confirm}
+        />
         <Button type="submit" className="w-full">
           Create account
         </Button>

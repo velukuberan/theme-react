@@ -1,5 +1,5 @@
 import { ChevronDownIcon, CloseIcon, FilterIcon } from "../icons";
-import { MethodBadge, type HttpMethod } from "../MethodBadge";
+import { type HttpMethod, MethodBadge } from "../MethodBadge";
 import { SECTIONS, type View } from "./IconRail";
 
 const ITEMS: { method: HttpMethod; name: string; active?: boolean }[] = [
@@ -28,11 +28,15 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
 
   return (
     <>
-      {/* Backdrop: only below lg, only while open */}
-      <div
+      {/* Backdrop: only below lg, only while open. A button so it's a real control; kept out of the Tab order
+          because the drawer's own close button already covers keyboard users. */}
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-label="Close sidebar"
         data-open={open}
         onClick={onClose}
-        className="fixed inset-0 z-30 hidden bg-black/40 max-lg:data-[open=true]:block"
+        className="fixed inset-0 z-30 hidden cursor-default bg-black/40 max-lg:data-[open=true]:block"
       />
 
       <aside
@@ -81,7 +85,10 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
         <div className="flex items-center gap-2 px-3 pt-3 pb-2">
           <h2 className="flex-1 font-semibold">{title}</h2>
           {view === "apis" && (
-            <button type="button" className="rounded-md border border-line-strong bg-surface-3 px-2.5 py-0.5 hover:border-accent">
+            <button
+              type="button"
+              className="rounded-md border border-line-strong bg-surface-3 px-2.5 py-0.5 hover:border-accent"
+            >
               + New
             </button>
           )}
@@ -100,23 +107,21 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
                 User Management
               </div>
               {ITEMS.map(({ method, name, active }) => (
-                <a
+                <button
                   key={name}
-                  href="#"
+                  type="button"
                   aria-current={active ? "page" : undefined}
-                  className="flex items-center gap-2 rounded-md py-1 pr-2 pl-5 text-fg-muted hover:bg-surface-2 hover:text-fg aria-[current=page]:bg-surface-3 aria-[current=page]:text-fg"
+                  className="flex w-full items-center gap-2 rounded-md py-1 pr-2 pl-5 text-fg-muted hover:bg-surface-2 hover:text-fg aria-[current=page]:bg-surface-3 aria-[current=page]:text-fg"
                 >
                   <MethodBadge method={method} className="w-10 text-right" />
                   {name}
-                </a>
+                </button>
               ))}
             </nav>
           </>
         )}
 
-        {view !== null && view !== "apis" && (
-          <p className="px-3 py-2 text-xs text-fg-subtle">{title}: coming soon.</p>
-        )}
+        {view !== null && view !== "apis" && <p className="px-3 py-2 text-xs text-fg-subtle">{title}: coming soon.</p>}
 
         {/* Items the top bar hides on small screens */}
         <div className="mt-auto space-y-2 border-t border-line p-3 md:hidden">
