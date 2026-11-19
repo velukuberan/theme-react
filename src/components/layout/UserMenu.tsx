@@ -41,9 +41,9 @@ export function UserMenu() {
     navigate(path);
   };
 
-  const onSignOut = () => {
+  const onSignOut = async () => {
     setOpen(false);
-    signOut();
+    await signOut();
     navigate("/login", { replace: true });
   };
 
@@ -58,7 +58,7 @@ export function UserMenu() {
         onClick={() => setOpen((v) => !v)}
         className="grid size-7 cursor-pointer place-items-center rounded-full bg-put text-xs font-semibold text-white hover:ring-2 hover:ring-line-strong aria-expanded:ring-2 aria-expanded:ring-accent"
       >
-        {user ? initials(user.name) : "?"}
+        {user ? initials(user.display_name) : "?"}
       </button>
 
       {open && (

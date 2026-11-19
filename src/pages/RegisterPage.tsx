@@ -1,6 +1,5 @@
 import { type FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { useAuth } from "../auth/AuthContext";
+import { Link } from "react-router";
 import { Button } from "../components/forms/Button";
 import { Field } from "../components/forms/Field";
 import { AuthLayout } from "./AuthLayout";
@@ -10,9 +9,8 @@ type Errors = Partial<Record<"name" | "email" | "password" | "confirm", string>>
 const MIN_PASSWORD = 8;
 
 export function RegisterPage() {
-  const { register } = useAuth();
-  const navigate = useNavigate();
   const [errors, setErrors] = useState<Errors>({});
+  const [notice, setNotice] = useState("");
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -31,8 +29,8 @@ export function RegisterPage() {
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
-    register(name, email, password);
-    navigate("/", { replace: true });
+    // No registration endpoint on the server yet.
+    setNotice("Registration isn't available yet. Ask your administrator for an account.");
   };
 
   return (
@@ -73,6 +71,11 @@ export function RegisterPage() {
           autoComplete="new-password"
           error={errors.confirm}
         />
+        {notice && (
+          <p role="status" className="text-xs text-warn">
+            {notice}
+          </p>
+        )}
         <Button type="submit" className="w-full">
           Create account
         </Button>

@@ -1,71 +1,94 @@
-import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import * as backend from "../backend/auth";
+import { BackendError } from "../backend/client";
+import { loadTokens, saveTokens, type Tokens } from "../backend/tokens";
 
 /**
- * FAKE auth for the UI phase: no server, no real passwords.
- * Any email/password signs you in; the "session" is just the user object in localStorage.
- * Swap the bodies of signIn/register/signOut for real API calls later — the context shape can stay.
+ * Sign-in talks to the Restling Server (POST /auth/login, GET /users/me, POST /auth/logout).
+ * Register and profile updates are still fake: the server has no endpoints for them yet in this UI.
  */
-export type User = {
-  name: string;
-  email: string;
-  role: string;
-};
+export type User = backend.UserDetail;
+
+/** "loading" while a saved token is being checked on startup. */
+export type AuthStatus = "loading" | "authenticated" | "anonymous";
 
 type AuthContextValue = {
+  status: AuthStatus;
   user: User | null;
-  signIn: (email: string, password: string) => void;
-  register: (name: string, email: string, password: string) => void;
-  signOut: () => void;
-  updateProfile: (changes: Pick<User, "name" | "email">) => void;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  /** Fake for now: updates the local copy only. */
+  updateProfile: (changes: Pick<User, "display_name" | "job_title">) => void;
 };
 
-const SESSION_KEY = "apiconsole.session";
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function loadUser(): User | null {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    return raw ? (JSON.parse(raw) as User) : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveUser(user: User | null): void {
-  try {
-    if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    else localStorage.removeItem(SESSION_KEY);
-  } catch {
-    // storage unavailable: the session just won't survive a reload
-  }
-}
-
-/** "velu.k@example.com" → "Velu K" */
-const nameFromEmail = (email: string): string =>
-  email
-    .split("@")[0]
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join(" ") || email;
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(loadUser);
+  const [tokens, setTokens] = useState<Tokens | null>(loadTokens);
+  const [user, setUser] = useState<User | null>(null);
+  const [status, setStatus] = useState<AuthStatus>(() => (loadTokens() ? "loading" : "anonymous"));
 
-  const update = useCallback((next: User | null) => {
-    saveUser(next);
-    setUser(next);
+  const clearSession = useCallback(() => {
+    saveTokens(null);
+    setTokens(null);
+    setUser(null);
+    setStatus("anonymous");
+  }, []);
+
+  // On startup: if a token was saved, ask the server who it belongs to.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once with the tokens loaded at startup
+  useEffect(() => {
+    if (!tokens) return;
+    let cancelled = false;
+    backend
+      .getMe(tokens.accessToken)
+      .then((me) => {
+        if (cancelled) return;
+        setUser(me);
+        setStatus("authenticated");
+      })
+      .catch(() => {
+        // 401 (expired/revoked) or server unreachable: start signed out.
+        if (!cancelled) clearSession();
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const signIn = useCallback(async (email: string, password: string) => {
+    const data = await backend.login(email, password);
+    const next: Tokens = {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      expiresAt: Date.now() + data.expires_in * 1000,
+      sessionId: data.session_id,
+    };
+    const me = await backend.getMe(next.accessToken);
+    saveTokens(next);
+    setTokens(next);
+    setUser(me);
+    setStatus("authenticated");
+  }, []);
+
+  const signOut = useCallback(async () => {
+    const token = tokens?.accessToken;
+    clearSession();
+    if (token) {
+      // Best effort: the local session is already gone even if the server can't be reached.
+      await backend.logout(token).catch((error: unknown) => {
+        if (!(error instanceof BackendError)) throw error;
+      });
+    }
+  }, [tokens, clearSession]);
+
+  const updateProfile = useCallback((changes: Pick<User, "display_name" | "job_title">) => {
+    setUser((current) => (current ? { ...current, ...changes } : current));
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({
-      user,
-      signIn: (email) => update({ name: nameFromEmail(email), email, role: "Admin" }),
-      register: (name, email) => update({ name, email, role: "Admin" }),
-      signOut: () => update(null),
-      updateProfile: (changes) => user && update({ ...user, ...changes }),
-    }),
-    [user, update],
+    () => ({ status, user, signIn, signOut, updateProfile }),
+    [status, user, signIn, signOut, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

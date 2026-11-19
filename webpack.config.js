@@ -50,6 +50,8 @@ export default (_env, argv) => {
       port: 5173,
       hot: true,
       open: false,
+      // Channel 1 only: the app's own backend (Restling Server). Same origin in the browser, so no CORS.
+      proxy: [{ context: ["/api"], target: "http://127.0.0.1:8000" }],
     },
   };
 };
