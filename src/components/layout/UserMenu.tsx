@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { initials, useAuth } from "../../auth/AuthContext";
-import { LogOutIcon, UserIcon } from "../icons";
+import { LogOutIcon, SettingsIcon, UserIcon } from "../icons";
 
 /**
  * Avatar button with a small dropdown for account actions.
@@ -36,9 +36,9 @@ export function UserMenu() {
     };
   }, [open]);
 
-  const goToProfile = () => {
+  const goTo = (path: string) => {
     setOpen(false);
-    navigate("/profile");
+    navigate(path);
   };
 
   const onSignOut = () => {
@@ -68,11 +68,20 @@ export function UserMenu() {
         >
           <button
             type="button"
-            onClick={goToProfile}
+            onClick={() => goTo("/profile")}
             className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-fg-muted hover:bg-surface-2 hover:text-fg"
           >
             <UserIcon className="size-4" />
             Profile
+          </button>
+
+          <button
+            type="button"
+            onClick={() => goTo("/settings")}
+            className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-fg-muted hover:bg-surface-2 hover:text-fg"
+          >
+            <SettingsIcon className="size-4" />
+            Settings
           </button>
 
           <div className="my-1 border-t border-line" />
