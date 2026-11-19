@@ -26,8 +26,8 @@ export function ProfilePage() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     updateProfile({
-      name: String(form.get("name")).trim() || user.name,
-      email: String(form.get("email")).trim() || user.email,
+      display_name: String(form.get("display_name")).trim() || user.display_name,
+      job_title: String(form.get("job_title")).trim() || null,
     });
     setSaved("Details saved.");
   };
@@ -51,12 +51,13 @@ export function ProfilePage() {
       <div className="mx-auto max-w-2xl space-y-5 p-4 sm:p-6">
         <div className="flex items-center gap-4">
           <div className="grid size-14 shrink-0 place-items-center rounded-full bg-put text-lg font-semibold text-white">
-            {initials(user.name)}
+            {initials(user.display_name)}
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold">{user.name}</h1>
+            <h1 className="truncate text-lg font-semibold">{user.display_name}</h1>
             <p className="truncate text-fg-subtle">
-              {user.email} · {user.role}
+              {user.email} · {user.system_role}
+              {user.job_title && ` · ${user.job_title}`}
             </p>
           </div>
         </div>
@@ -67,12 +68,23 @@ export function ProfilePage() {
           </p>
         )}
 
-        <Section title="Personal details" description="Your name and email address.">
+        <Section
+          title="Personal details"
+          description="Your display name and job title. Email can only be changed by an administrator."
+        >
           {/* key: reset the inputs when the saved user changes */}
-          <form key={`${user.name}|${user.email}`} onSubmit={onSaveDetails} className="space-y-4">
+          <form key={`${user.display_name}|${user.job_title}`} onSubmit={onSaveDetails} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Name" name="name" defaultValue={user.name} autoComplete="name" />
-              <Field label="Email" name="email" type="email" defaultValue={user.email} autoComplete="email" />
+              <Field label="Display name" name="display_name" defaultValue={user.display_name} autoComplete="name" />
+              <Field label="Job title" name="job_title" defaultValue={user.job_title ?? ""} />
+              <Field
+                label="Email"
+                name="email"
+                type="email"
+                defaultValue={user.email}
+                readOnly
+                className="sm:col-span-2"
+              />
             </div>
             <div className="flex justify-end">
               <Button type="submit">Save changes</Button>
