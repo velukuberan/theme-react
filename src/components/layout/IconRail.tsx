@@ -5,14 +5,29 @@ import { EnvIcon, FolderIcon, HelpIcon, HistoryIcon, SettingsIcon, UsersIcon } f
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
-/** Sidebar panels: things you browse while you work. */
-export type View = "apis" | "env" | "history";
+/** Sidebar panels: things you browse while you work, and admin areas with their own submenu. */
+export type View = "apis" | "env" | "history" | "users";
 
-export const SECTIONS: { id: View; label: string; Icon: IconComponent }[] = [
+export type Section = {
+  id: View;
+  label: string;
+  Icon: IconComponent;
+  /** Hidden from users without this permission. Left out = everyone. */
+  requires?: Permission;
+};
+
+export const SECTIONS: Section[] = [
   { id: "apis", label: "APIs", Icon: FolderIcon },
   { id: "env", label: "Env", Icon: EnvIcon },
   { id: "history", label: "History", Icon: HistoryIcon },
+  { id: "users", label: "Users", Icon: UsersIcon, requires: "users.manage" },
 ];
+
+/** The sidebar sections this user may see. */
+export function useVisibleSections(): Section[] {
+  const can = useCan();
+  return SECTIONS.filter((section) => !section.requires || can(section.requires));
+}
 
 export type PageLink = {
   to: string;
@@ -26,7 +41,6 @@ export type PageLink = {
 
 /** Full pages. Every menu (rail, mobile drawer) is built from this one list, filtered by permission. */
 export const PAGE_LINKS: PageLink[] = [
-  { to: "/users", label: "Users", Icon: UsersIcon, placement: "top", requires: "users.manage" },
   { to: "/help", label: "Help", Icon: HelpIcon, placement: "bottom" },
   { to: "/settings", label: "Settings", Icon: SettingsIcon, placement: "bottom" },
 ];
@@ -45,7 +59,25 @@ type Props = {
   onSelect: (view: View) => void;
 };
 
+function SectionButton({ section: { id, label, Icon }, active, onSelect }: Props & { section: Section }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(id)}
+      aria-pressed={active === id}
+      aria-current={active === id ? "page" : undefined}
+      className={ITEM_CLASS}
+    >
+      <Icon className="size-[18px]" />
+      {label}
+    </button>
+  );
+}
+
 export function IconRail({ active, onSelect }: Props) {
+  const sections = useVisibleSections();
+  const everyone = sections.filter((section) => !section.requires);
+  const restricted = sections.filter((section) => section.requires);
   const links = useVisiblePageLinks();
   const top = links.filter((link) => link.placement === "top");
   const bottom = links.filter((link) => link.placement === "bottom");
@@ -55,18 +87,14 @@ export function IconRail({ active, onSelect }: Props) {
       aria-label="Sections"
       className="hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-line bg-surface py-2 md:flex"
     >
-      {SECTIONS.map(({ id, label, Icon }) => (
-        <button
-          key={id}
-          type="button"
-          onClick={() => onSelect(id)}
-          aria-pressed={active === id}
-          aria-current={active === id ? "page" : undefined}
-          className={ITEM_CLASS}
-        >
-          <Icon className="size-[18px]" />
-          {label}
-        </button>
+      {everyone.map((section) => (
+        <SectionButton key={section.id} section={section} active={active} onSelect={onSelect} />
+      ))}
+
+      {/* Sections only some users see (Users for admins), set apart by a divider */}
+      {restricted.length > 0 && <div className="my-1 h-px w-8 bg-line" />}
+      {restricted.map((section) => (
+        <SectionButton key={section.id} section={section} active={active} onSelect={onSelect} />
       ))}
 
       {top.length > 0 && (

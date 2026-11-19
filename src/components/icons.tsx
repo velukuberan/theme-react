@@ -100,6 +100,12 @@ export const UsersIcon = (p: IconProps) => (
     <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8" />
   </Icon>
 );
+export const UserPlusIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6" />
+  </Icon>
+);
 export const ArrowRightIcon = (p: IconProps) => (
   <Icon strokeWidth={3} {...p}>
     <path d="M5 12h14M13 5l7 7-7 7" />
