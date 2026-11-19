@@ -1,6 +1,6 @@
 import { createHashRouter, Navigate } from "react-router";
 import { App } from "./App";
-import { GuestOnly, RequireAuth } from "./auth/guards";
+import { GuestOnly, RequireAuth, RequirePermission } from "./auth/guards";
 import { HelpPage } from "./pages/HelpPage";
 import { LoginPage } from "./pages/LoginPage";
 import { AccountTab } from "./pages/profile/AccountTab";
@@ -8,6 +8,7 @@ import { ProfileLayout } from "./pages/profile/ProfileLayout";
 import { SessionsTab } from "./pages/profile/SessionsTab";
 import { RegisterPage } from "./pages/RegisterPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { UsersPage } from "./pages/UsersPage";
 import { WorkbenchPage } from "./pages/WorkbenchPage";
 
 /**
@@ -16,6 +17,7 @@ import { WorkbenchPage } from "./pages/WorkbenchPage";
  *   /login, /register               full-screen, signed-out only
  *   /, /profile, /profile/sessions, /settings, /help
  *                                   inside the app shell (App), signed-in only
+ *   /users                          also needs the users.manage permission (else: home)
  */
 export const router = createHashRouter([
   {
@@ -39,6 +41,10 @@ export const router = createHashRouter([
               { index: true, element: <AccountTab /> },
               { path: "sessions", element: <SessionsTab /> },
             ],
+          },
+          {
+            element: <RequirePermission permission="users.manage" />,
+            children: [{ path: "/users", element: <UsersPage /> }],
           },
           { path: "/settings", element: <SettingsPage /> },
           { path: "/help", element: <HelpPage /> },
