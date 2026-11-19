@@ -1,4 +1,4 @@
-import { ChevronDownIcon, FilterIcon } from "../icons";
+import { ChevronDownIcon, CloseIcon, FilterIcon } from "../icons";
 import { MethodBadge, type HttpMethod } from "../MethodBadge";
 import { SECTIONS, type View } from "./IconRail";
 
@@ -12,6 +12,8 @@ const TITLES: Record<View, string> = {
   apis: "Collections",
   env: "Environments",
   history: "History",
+  help: "Help",
+  settings: "Settings",
 };
 
 type Props = {
@@ -39,25 +41,41 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
         aria-label={title || "Sidebar"}
         className="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-line bg-surface shadow-xl transition-transform duration-200 data-[open=true]:translate-x-0 lg:static lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none lg:data-[open=false]:hidden"
       >
+        {/* Drawer header: only below lg, where the sidebar is a drawer */}
+        <div className="flex h-11 shrink-0 items-center gap-2 border-b border-line px-3 lg:hidden">
+          <span className="grid size-[22px] place-items-center rounded-md bg-accent font-mono text-xs font-semibold text-on-accent">
+            {"{ }"}
+          </span>
+          <span className="flex-1 font-semibold">API Console</span>
+          <button
+            type="button"
+            aria-label="Close sidebar"
+            onClick={onClose}
+            className="grid size-8 cursor-pointer place-items-center rounded-md text-fg-subtle hover:bg-surface-2 hover:text-fg"
+          >
+            <CloseIcon className="size-4" />
+          </button>
+        </div>
+
         {/* Section tabs: mobile only, since the icon rail is hidden below md */}
         <div
-        role="tablist"
-        aria-label="Sections"
-        className="mx-3 mt-3 mb-1 grid grid-cols-3 gap-1.5 rounded-lg bg-surface-2 p-1.5 md:hidden"
+          role="tablist"
+          aria-label="Sections"
+          className="mx-3 mt-3 mb-1 grid grid-cols-5 gap-1 rounded-lg bg-surface-2 p-1 md:hidden"
         >
-        {SECTIONS.map(({ id, label, Icon }) => (
+          {SECTIONS.map(({ id, label, Icon }) => (
             <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={view === id}
-            onClick={() => onChangeView(id)}
-            className="flex items-center justify-center gap-1.5 rounded-md border border-line/60 py-1.5 text-xs text-fg-subtle hover:bg-surface hover:text-fg aria-selected:border-transparent aria-selected:bg-surface aria-selected:text-accent aria-selected:shadow-sm"
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={view === id}
+              onClick={() => onChangeView(id)}
+              className="flex min-w-0 cursor-pointer flex-col items-center gap-0.5 rounded-md py-1.5 text-[10px] text-fg-subtle hover:bg-surface hover:text-fg aria-selected:bg-surface aria-selected:text-accent aria-selected:shadow-sm"
             >
-            <Icon className="size-4" />
-            {label}
+              <Icon className="size-4" />
+              <span className="max-w-full truncate">{label}</span>
             </button>
-        ))}
+          ))}
         </div>
 
         <div className="flex items-center gap-2 px-3 pt-3 pb-2">
@@ -67,14 +85,6 @@ export function Sidebar({ view, onChangeView, onClose }: Props) {
               + New
             </button>
           )}
-          <button
-            type="button"
-            aria-label="Close sidebar"
-            onClick={onClose}
-            className="grid size-7 place-items-center rounded-md text-fg-subtle hover:bg-surface-2 hover:text-fg lg:hidden"
-          >
-            ✕
-          </button>
         </div>
 
         {view === "apis" && (

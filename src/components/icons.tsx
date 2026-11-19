@@ -26,4 +26,5 @@ export const FolderIcon = (p: IconProps) => <Icon {...p}><path d="M3 7a2 2 0 0 1
 export const EnvIcon = (p: IconProps) => <Icon {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 9h10M7 13h6" /></Icon>;
 export const HistoryIcon = (p: IconProps) => <Icon {...p}><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></Icon>;
 export const FilterIcon = (p: IconProps) => <Icon {...p}><path d="M3 5h18M6 12h12M10 19h4" /></Icon>;
+export const CloseIcon = (p: IconProps) => <Icon {...p}><path d="M18 6 6 18M6 6l12 12" /></Icon>;
 export const ArrowRightIcon = (p: IconProps) => <Icon strokeWidth={3} {...p}><path d="M5 12h14M13 5l7 7-7 7" /></Icon>;
